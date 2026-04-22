@@ -19,15 +19,14 @@ let score = 0;
 let highScore = localStorage.getItem('catHighScore') || 0;
 document.getElementById('highScore').innerText = highScore;
 
-// Posiciones fijas (para que no se escondan)
-const GROUND_Y = 260;      // línea amarilla
+const GROUND_Y = 260;
 const CAT_WIDTH = 38;
 const CAT_HEIGHT = 38;
 const CAT_X = 70;
 const OBSTACLE_WIDTH = 30;
 const OBSTACLE_HEIGHT = 38;
 
-let catY = GROUND_Y - CAT_HEIGHT;  // sus patas tocan la línea
+let catY = GROUND_Y - CAT_HEIGHT;
 let catVelocity = 0;
 let catIsJumping = false;
 
@@ -37,17 +36,14 @@ let obstacleActive = false;
 let frameCounter = 0;
 let spawnGap = 85;
 
-// Dibujar gato (siempre en CAT_X, catY)
 function drawCat() {
     ctx.save();
     ctx.fillStyle = ACCENT_COLOR;
 
-    // Cuerpo
     ctx.beginPath();
     ctx.ellipse(CAT_X + CAT_WIDTH/2, catY + CAT_HEIGHT/2 - 2, CAT_WIDTH/2, CAT_HEIGHT/2.3, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Orejas
     ctx.beginPath();
     ctx.moveTo(CAT_X + 5, catY + 4);
     ctx.lineTo(CAT_X + 2, catY - 10);
@@ -59,28 +55,24 @@ function drawCat() {
     ctx.lineTo(CAT_X + CAT_WIDTH - 16, catY + 2);
     ctx.fill();
 
-    // Ojos blancos
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
     ctx.arc(CAT_X + 11, catY + 16, 6, 0, Math.PI * 2);
     ctx.arc(CAT_X + 27, catY + 16, 6, 0, Math.PI * 2);
     ctx.fill();
 
-    // Pupilas
     ctx.fillStyle = '#000000';
     ctx.beginPath();
     ctx.arc(CAT_X + 10, catY + 15, 3, 0, Math.PI * 2);
     ctx.arc(CAT_X + 26, catY + 15, 3, 0, Math.PI * 2);
     ctx.fill();
 
-    // Reflejos
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
     ctx.arc(CAT_X + 8, catY + 13, 1.2, 0, Math.PI * 2);
     ctx.arc(CAT_X + 24, catY + 13, 1.2, 0, Math.PI * 2);
     ctx.fill();
 
-    // Gafas
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -92,7 +84,6 @@ function drawCat() {
     ctx.lineTo(CAT_X + 19.5, catY + 15);
     ctx.stroke();
 
-    // Nariz
     ctx.fillStyle = '#000000';
     ctx.beginPath();
     ctx.moveTo(CAT_X + 19, catY + 23);
@@ -100,7 +91,6 @@ function drawCat() {
     ctx.lineTo(CAT_X + 21, catY + 26);
     ctx.fill();
 
-    // Bigotes
     ctx.beginPath();
     ctx.moveTo(CAT_X + 5, catY + 22);
     ctx.lineTo(CAT_X + 12, catY + 24);
@@ -119,7 +109,6 @@ function drawCat() {
     ctx.restore();
 }
 
-// Taza
 function drawObstacle() {
     ctx.fillStyle = ACCENT_COLOR;
     ctx.fillRect(obstacleX, GROUND_Y - OBSTACLE_HEIGHT, OBSTACLE_WIDTH, OBSTACLE_HEIGHT - 8);
@@ -135,33 +124,21 @@ function drawObstacle() {
     ctx.fill();
 }
 
-// Suelo
 function drawGround() {
     ctx.fillStyle = ACCENT_COLOR;
     ctx.fillRect(0, GROUND_Y, canvas.width, 3);
 }
 
-// Cargar el logo (después de las variables globales, antes de drawLogo)
-const logoImage = new Image();
-logoImage.src = 'logo.webp';  // usa el nombre exacto de tu archivo
-
 function drawLogo() {
-    // Si el logo ya está cargado, lo dibuja
-    if (logoImage.complete && logoImage.naturalWidth > 0) {
-        ctx.drawImage(logoImage, 10, 8, 45, 45);
-    } else {
-        // Mientras carga o si no existe, muestra el emoji
-        ctx.font = 'bold 20px "Montserrat"';
-        ctx.fillStyle = ACCENT_COLOR;
-        ctx.fillText("🐱", 12, 38);
-    }
-    // Texto "Bunta" al lado del logo
+    // Emoji + Bunta en la esquina superior izquierda del canvas
+    ctx.font = 'bold 20px "Montserrat"';
+    ctx.fillStyle = ACCENT_COLOR;
+    ctx.fillText("🐱", 12, 38);
     ctx.font = 'bold 14px "Montserrat"';
     ctx.fillStyle = ACCENT_COLOR;
-    ctx.fillText("Bunta", 60, 32);
+    ctx.fillText("Bunta", 55, 32);
 }
 
-// Física del gato
 function updateCat() {
     catVelocity += 0.8;
     catY += catVelocity;
@@ -188,7 +165,6 @@ function jump() {
     }
 }
 
-// Obstáculo
 function updateObstacle() {
     if (!obstacleActive) return;
 
@@ -203,7 +179,6 @@ function updateObstacle() {
         if (score > 35) spawnGap = 50;
     }
 
-    // Colisión
     if (obstacleActive &&
         CAT_X < obstacleX + OBSTACLE_WIDTH - 4 &&
         CAT_X + CAT_WIDTH - 4 > obstacleX &&
@@ -237,7 +212,6 @@ function resetGame() {
     frameCounter = 0;
 }
 
-// Animación
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = BG_COLOR;
@@ -271,7 +245,6 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-// Eventos
 window.addEventListener('keydown', (e) => {
     if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
@@ -287,5 +260,4 @@ canvas.addEventListener('touchstart', (e) => {
     jump();
 });
 
-// Iniciar
 animate();
