@@ -141,14 +141,24 @@ function drawGround() {
     ctx.fillRect(0, GROUND_Y, canvas.width, 3);
 }
 
-// Logo y Bunta (temporal con emoji)
+// Cargar el logo (después de las variables globales, antes de drawLogo)
+const logoImage = new Image();
+logoImage.src = 'logo.webp';  // usa el nombre exacto de tu archivo
+
 function drawLogo() {
-    ctx.font = 'bold 20px "Montserrat"';
-    ctx.fillStyle = ACCENT_COLOR;
-    ctx.fillText("🐱", 12, 38);
+    // Si el logo ya está cargado, lo dibuja
+    if (logoImage.complete && logoImage.naturalWidth > 0) {
+        ctx.drawImage(logoImage, 10, 8, 45, 45);
+    } else {
+        // Mientras carga o si no existe, muestra el emoji
+        ctx.font = 'bold 20px "Montserrat"';
+        ctx.fillStyle = ACCENT_COLOR;
+        ctx.fillText("🐱", 12, 38);
+    }
+    // Texto "Bunta" al lado del logo
     ctx.font = 'bold 14px "Montserrat"';
     ctx.fillStyle = ACCENT_COLOR;
-    ctx.fillText("Bunta", 55, 32);
+    ctx.fillText("Bunta", 60, 32);
 }
 
 // Física del gato
