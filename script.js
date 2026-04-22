@@ -1,106 +1,292 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    user-select: none;
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = 800;
+canvas.height = 300;
+
+const BG_COLOR = '#2c2e30';
+const ACCENT_COLOR = '#ffd333';
+
+let gameRunning = true;
+let score = 0;
+let highScore = localStorage.getItem('catHighScore') || 0;
+document.getElementById('highScore').innerText = highScore;
+
+// Logo (usaremos el texto "Michito" como placeholder hasta que subas tu logo)
+const logoImage = new Image();
+logoImage.src = 'https://placehold.co/60x60/ffd333/2c2e30?text=M'; // Cambia esto por tu logo real
+
+// Gato rediseñado - más reconocible
+const cat = {
+    x: 70,
+    y: 0,
+    width: 35,
+    height: 35,
+    groundY: canvas.height - 42,
+    velocity: 0,
+    gravity: 0.8,
+    jumpPower: -11,
+    isJumping: false
+};
+cat.y = cat.groundY;
+
+// Taza de café
+let obstacle = {
+    x: canvas.width,
+    y: canvas.height - 42,
+    width: 28,
+    height: 35,
+    active: true
+};
+
+let frameCounter = 0;
+let spawnGap = 85;
+
+function drawCat() {
+    ctx.save();
+    
+    // Cuerpo redondeado
+    ctx.fillStyle = ACCENT_COLOR;
+    ctx.beginPath();
+    ctx.ellipse(cat.x + cat.width/2, cat.y + cat.height/2 - 3, cat.width/2.2, cat.height/2.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Orejas triangulares
+    ctx.beginPath();
+    ctx.moveTo(cat.x + 6, cat.y + 2);
+    ctx.lineTo(cat.x + 14, cat.y - 8);
+    ctx.lineTo(cat.x + 22, cat.y + 2);
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.moveTo(cat.x + cat.width - 6, cat.y + 2);
+    ctx.lineTo(cat.x + cat.width - 14, cat.y - 8);
+    ctx.lineTo(cat.x + cat.width - 22, cat.y + 2);
+    ctx.fill();
+    
+    // Ojos grandes (blancos)
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(cat.x + 11, cat.y + 15, 5.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cat.x + 24, cat.y + 15, 5.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Pupilas
+    ctx.fillStyle = '#000000';
+    ctx.beginPath();
+    ctx.arc(cat.x + 10, cat.y + 14, 2.8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cat.x + 23, cat.y + 14, 2.8, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Gafas redondas
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.arc(cat.x + 11, cat.y + 15, 7, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cat.x + 24, cat.y + 15, 7, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cat.x + 18, cat.y + 14);
+    ctx.lineTo(cat.x + 18, cat.y + 16);
+    ctx.stroke();
+    
+    // Nariz y bigotes
+    ctx.fillStyle = '#000000';
+    ctx.beginPath();
+    ctx.arc(cat.x + 17, cat.y + 21, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.moveTo(cat.x + 6, cat.y + 18);
+    ctx.lineTo(cat.x + 12, cat.y + 20);
+    ctx.moveTo(cat.x + 6, cat.y + 22);
+    ctx.lineTo(cat.x + 12, cat.y + 22);
+    ctx.moveTo(cat.x + 23, cat.y + 20);
+    ctx.lineTo(cat.x + 29, cat.y + 18);
+    ctx.moveTo(cat.x + 23, cat.y + 22);
+    ctx.lineTo(cat.x + 29, cat.y + 22);
+    ctx.stroke();
+    
+    ctx.restore();
 }
 
-body {
-    background: #2c2e30;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Montserrat', 'Courier New', monospace;
+function drawCoffee() {
+    ctx.fillStyle = ACCENT_COLOR;
+    // Cuerpo taza
+    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height - 8);
+    // Asa
+    ctx.beginPath();
+    ctx.ellipse(obstacle.x + obstacle.width + 5, obstacle.y + 12, 6, 9, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = ACCENT_COLOR;
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+    // Vapor (3 líneas)
+    ctx.beginPath();
+    ctx.moveTo(obstacle.x + 7, obstacle.y - 4);
+    ctx.lineTo(obstacle.x + 10, obstacle.y - 12);
+    ctx.lineTo(obstacle.x + 13, obstacle.y - 4);
+    ctx.fill();
 }
 
-.game-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    padding: 20px;
-    background: #2c2e30;
+function drawLogo() {
+    // Mostrar logo en esquina superior izquierda del canvas
+    ctx.font = 'bold 22px "Montserrat"';
+    ctx.fillStyle = ACCENT_COLOR;
+    ctx.shadowBlur = 0;
+    ctx.fillText("🐱", 12, 38);
+    ctx.font = 'bold 12px "Montserrat"';
+    ctx.fillStyle = "#ffd333cc";
+    ctx.fillText("Michito", 38, 35);
 }
 
-canvas {
-    background: #2c2e30;
-    border-radius: 0;
-    box-shadow: none;
-    cursor: pointer;
-    display: block;
-}
-
-.score-board {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 800px;
-    padding: 10px 20px;
-    background: #2c2e30;
-    color: #ffd333;
-    font-weight: 800;
-    font-size: 1.2rem;
-    letter-spacing: 1px;
-    font-family: 'Montserrat', monospace;
-}
-
-.controls-info {
-    color: #ffd333;
-    opacity: 0.6;
-    font-size: 0.7rem;
-    text-align: center;
-    font-family: 'Montserrat', monospace;
-    font-weight: 600;
-}
-
-.social-footer {
-    display: flex;
-    gap: 35px;
-    justify-content: center;
-    padding: 12px 25px;
-    background: #2c2e30;
-    margin-top: 10px;
-}
-
-.social-footer a {
-    display: inline-block;
-    transition: transform 0.2s ease;
-    color: #ffd333;
-    font-size: 32px;
-}
-
-.social-footer a:hover {
-    transform: scale(1.15);
-    color: white;
-}
-
-@media (max-width: 850px) {
-    canvas {
-        width: 100vw;
-        height: auto;
+function updateCat() {
+    cat.velocity += cat.gravity;
+    cat.y += cat.velocity;
+    
+    if (cat.y >= cat.groundY) {
+        cat.y = cat.groundY;
+        cat.isJumping = false;
+        cat.velocity = 0;
     }
     
-    .score-board {
-        font-size: 0.9rem;
-        padding: 6px 15px;
+    if (cat.y < 0) {
+        cat.y = 0;
+        if (cat.velocity < 0) cat.velocity = 0;
     }
-    
-    .social-footer a {
-        font-size: 28px;
-    }
-}* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    user-select: none;
 }
 
-body {
-    background: #2c2e30;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
+function jump() {
+    if (!gameRunning) {
+        resetGame();
+        return;
+    }
+    
+    if (!cat.isJumping) {
+        cat.velocity = cat.jumpPower;
+        cat.isJumping = true;
+    }
+}
+
+function updateObstacle() {
+    if (!obstacle.active) return;
+    
+    obstacle.x -= 5;
+    
+    if (obstacle.x + obstacle.width < 0) {
+        obstacle.active = false;
+        score++;
+        document.getElementById('score').innerText = score;
+        
+        if (score > 10) spawnGap = 70;
+        if (score > 20) spawnGap = 60;
+        if (score > 35) spawnGap = 50;
+    }
+    
+    if (obstacle.active &&
+        cat.x < obstacle.x + obstacle.width - 4 &&
+        cat.x + cat.width - 4 > obstacle.x &&
+        cat.y + cat.height - 6 > obstacle.y &&
+        cat.y + 12 < obstacle.y + obstacle.height) {
+        gameRunning = false;
+    }
+}
+
+function spawnObstacle() {
+    if (!obstacle.active && gameRunning) {
+        obstacle = {
+            x: canvas.width,
+            y: canvas.height - 42,
+            width: 28,
+            height: 35,
+            active: true
+        };
+        frameCounter = 0;
+    }
+}
+
+function resetGame() {
+    gameRunning = true;
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('catHighScore', highScore);
+        document.getElementById('highScore').innerText = highScore;
+    }
+    score = 0;
+    document.getElementById('score').innerText = score;
+    
+    cat.y = cat.groundY;
+    cat.velocity = 0;
+    cat.isJumping = false;
+    obstacle.active = false;
+    frameCounter = spawnGap;
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = BG_COLOR;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Línea de piso
+    ctx.fillStyle = ACCENT_COLOR;
+    ctx.fillRect(0, canvas.height - 40, canvas.width, 3);
+    
+    if (gameRunning) {
+        updateCat();
+        updateObstacle();
+        
+        frameCounter++;
+        if (frameCounter >= spawnGap && !obstacle.active) {
+            spawnObstacle();
+            frameCounter = 0;
+        }
+    } else {
+        ctx.fillStyle = ACCENT_COLOR;
+        ctx.font = 'bold 26px "Montserrat"';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 30);
+        ctx.font = '14px "Montserrat"';
+        ctx.fillStyle = '#ffd333cc';
+        ctx.fillText('Tap / Espacio para reiniciar', canvas.width/2, canvas.height/2 + 20);
+        ctx.textAlign = 'left';
+    }
+    
+    drawCat();
+    if (obstacle.active) drawCoffee();
+    drawLogo(); // Logo en el canvas
+    
+    requestAnimationFrame(animate);
+}
+
+// Eventos
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault();
+        jump();
+    }
+});
+canvas.addEventListener('click', (e) => {
+    e.preventDefault();
+    jump();
+});
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    jump();
+});
+
+document.getElementById('highScore').innerText = highScore;
+setTimeout(() => {
+    if (!obstacle.active && gameRunning) {
+        frameCounter = 40;
+    }
+}, 500);
+
+animate();    justify-content: center;
     align-items: center;
     font-family: 'Montserrat', 'Courier New', monospace;
 }
