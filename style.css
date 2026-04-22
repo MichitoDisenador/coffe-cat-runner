@@ -52,9 +52,9 @@ canvas {
 
 .social-footer {
     display: flex;
-    gap: 30px;
+    gap: 35px;
     justify-content: center;
-    padding: 15px 20px;
+    padding: 12px 25px;
     background: #2c2e30;
     border-radius: 50px;
     margin-top: 10px;
@@ -63,19 +63,15 @@ canvas {
 .social-footer a {
     display: inline-block;
     transition: transform 0.2s ease;
+    color: #ffd333;
+    font-size: 32px;
 }
 
 .social-footer a:hover {
-    transform: scale(1.1);
+    transform: scale(1.15);
+    color: white;
 }
 
-.social-footer img {
-    width: 32px;
-    height: 32px;
-    filter: brightness(0) invert(1);
-}
-
-/* Para pantallas táctiles */
 @media (max-width: 850px) {
     canvas {
         width: 95vw;
@@ -87,8 +83,7 @@ canvas {
         padding: 6px 15px;
     }
     
-    .social-footer img {
-        width: 28px;
-        height: 28px;
+    .social-footer a {
+        font-size: 28px;
     }
 }
