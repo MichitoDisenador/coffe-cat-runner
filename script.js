@@ -14,7 +14,7 @@ document.getElementById('highScore').innerText = highScore;
 
 // Logo (usaremos el texto "Michito" como placeholder hasta que subas tu logo)
 const logoImage = new Image();
-logoImage.src = 'https://placehold.co/60x60/ffd333/2c2e30?text=M'; // Cambia esto por tu logo real
+logoImage.src = 'logo.png'; // Cambia esto por tu logo real
 
 // Gato rediseñado - más reconocible
 const cat = {
