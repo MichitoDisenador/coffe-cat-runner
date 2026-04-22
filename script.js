@@ -20,14 +20,14 @@ let highScore = localStorage.getItem('catHighScore') || 0;
 document.getElementById('highScore').innerText = highScore;
 
 // Posición del suelo (línea amarilla)
-const GROUND_Y = 260; // Y donde está la línea (base del piso)
+const GROUND_Y = canvas.height - 40; // Y donde está la línea (base del piso)
 
 // Gato: usamos baseY (sus patas tocan GROUND_Y)
 const cat = {
     x: 70,
-    baseY: GROUND_Y,
     width: 38,
     height: 38,
+    y: GROUND_Y - 38,
     velocity: 0,
     gravity: 0.8,
     jumpPower: -10,
@@ -39,7 +39,7 @@ cat.y = cat.baseY - cat.height;
 // Taza: también base en GROUND_Y
 let obstacle = {
     x: canvas.width,
-    baseY: GROUND_Y,
+    baseY: GROUND_Y - 38,
     width: 30,
     height: 38,
     active: true
@@ -157,16 +157,17 @@ function drawLogo() {
 function updateCat() {
     cat.velocity += cat.gravity;
     cat.y += cat.velocity;
-    // Convertimos y a baseY
-    let newBaseY = cat.y + cat.height;
-    if (newBaseY >= GROUND_Y) {
-        newBaseY = GROUND_Y;
-        cat.y = newBaseY - cat.height;
-        cat.isJumping = false;
+
+    if (cat.y + cat.height >= GROUND_Y) {
+        cat.y = GROUND_Y - cat.height;
         cat.velocity = 0;
-    } else if (cat.y < 0) {
+        cat.isJumping = false;
+    }
+
+    if (cat.y < 0) {
         cat.y = 0;
         if (cat.velocity < 0) cat.velocity = 0;
+    }
     }
 }
 
