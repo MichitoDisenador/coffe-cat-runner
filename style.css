@@ -24,9 +24,9 @@ body {
 
 canvas {
     background: #2c2e30;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     cursor: pointer;
+    display: block;
+    margin: 0 auto;
 }
 
 .score-board {
