@@ -20,7 +20,7 @@ let highScore = localStorage.getItem('catHighScore') || 0;
 document.getElementById('highScore').innerText = highScore;
 
 // Posición del suelo (línea amarilla)
-const GROUND_Y = 200; // Y donde está la línea (base del piso)
+const GROUND_Y = 260; // Y donde está la línea (base del piso)
 
 // Gato: usamos baseY (sus patas tocan GROUND_Y)
 const cat = {
